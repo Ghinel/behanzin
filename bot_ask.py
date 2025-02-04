@@ -91,5 +91,5 @@ def ask(question: str):
 
 
 
-print(ask("Quelles sont les organisations pour protéger les étudiantes vcitimes de violences basées sur le genre"))
+print(ask(""))
 
