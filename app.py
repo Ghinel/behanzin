@@ -103,7 +103,7 @@ st.markdown("""
 
 # Bouton "Dénoncer" en bas à droite (adapté pour l'inspiration historique)
 st.markdown("""
-    <a href="https://https://ghinel.vercel.app/" target="_blank">
+    <a href="https://ghinel.vercel.app/" target="_blank">
         <button class="denoncer-button">Découvrir Ghinel</button>
     </a>
 """, unsafe_allow_html=True)
