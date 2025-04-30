@@ -1,4 +1,4 @@
 .env
 app.py
 ghinel_env
-__pycache__
+__pycache__/
