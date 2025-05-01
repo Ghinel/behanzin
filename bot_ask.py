@@ -8,16 +8,12 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
-
-
+from dotenv import load_dotenv
 import os
 
 
-
-
-
-
-
+#load env
+load_dotenv()
 #load key
 api_key = os.getenv("api_key")
 HF_TOKEN = os.getenv("HF_TOKEN")
@@ -37,10 +33,11 @@ retriever = db.as_retriever(
 
 
 # Define LLM
-model = ChatMistralAI( model ="mistral-large-latest",
-                      temperature =0.2,
-                      maxRetries =3,
-                      mistral_api_key=api_key)
+model = ChatMistralAI(
+    model="mistral-large-latest", 
+    mistral_api_key=api_key,
+    temperature=0.2)
+print("Connexion réussie avec MistralAI.")
 
 
 
@@ -82,14 +79,12 @@ retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
 #Let's write a function to retrieve with llm
 
 def ask(question: str):
-  response = retrieval_chain.invoke({"input": question})
-  if response:
-    return response['answer']
-  else:
-    return "Veuillez poser une autre question."
-  
-
-
-
-#print(ask(""))
+    try:
+        response = retrieval_chain.invoke({"input": question})
+        if response:
+            return response['answer']
+        else:
+            return "Veuillez poser une autre question."
+    except Exception as e:
+        return f"Erreur : {e}"
 
