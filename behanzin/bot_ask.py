@@ -8,20 +8,23 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_huggingface import HuggingFaceEmbeddings
-
-
+from dotenv import load_dotenv
 import os
 
 
 
 
 
-
+load_dotenv()
 
 #load key
-api_key = os.getenv("api_key")
-HF_TOKEN = os.getenv("HF_TOKEN")
+print('OK')
 
+api_key = os.getenv("api_key")
+print(api_key)
+
+HF_TOKEN = os.getenv("HF_TOKEN")
+print(HF_TOKEN)
 
 db = FAISS.load_local("behanzin_bdv", HuggingFaceEmbeddings(model_name='sentence-transformers/multi-qa-MiniLM-L6-cos-v1'),
                           allow_dangerous_deserialization=True
@@ -37,11 +40,13 @@ retriever = db.as_retriever(
 
 
 # Define LLM
+print('Intro mistral')
 model = ChatMistralAI( model ="mistral-large-latest",
                       temperature =0.2,
                       maxRetries =3,
-                      mistral_api_key=api_key)
-
+                      mistral_api_key=api_key
+                      )
+print('Finish mistral')
 
 
 template = """
@@ -80,16 +85,19 @@ retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
 
 
 #Let's write a function to retrieve with llm
-
+print('ASK')
 def ask(question: str):
   response = retrieval_chain.invoke({"input": question})
   if response:
+    print('Response')
     return response['answer']
+    print('Yo response')
   else:
     return "Veuillez poser une autre question."
+  print('All is Ok!')
   
 
 
 
-#print(ask(""))
+#print(ask("salut"))
 
