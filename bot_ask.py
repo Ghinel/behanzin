@@ -1,52 +1,46 @@
-#packages
-from langchain.prompts import PromptTemplate
+import os
+from langchain.prompts import PromptTemplate, ChatPromptTemplate 
 from langchain_mistralai.chat_models import ChatMistralAI
-from langchain_mistralai.embeddings import MistralAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_core.prompts import ChatPromptTemplate
 from langchain.chains import create_retrieval_chain
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_huggingface import HuggingFaceEmbeddings
 from dotenv import load_dotenv
-import os
-
-
-
-
 
 load_dotenv()
 
-#load key
-print('OK')
 
-api_key = os.getenv("api_key")
-print(api_key)
 
-HF_TOKEN = os.getenv("HF_TOKEN")
-print(HF_TOKEN)
+#API keys loading
+hf_api_key = os.getenv('HF_TOKEN')
+mistral_api_key = os.getenv('MISTRAL_API_KEY')
 
-db = FAISS.load_local("behanzin_bdv", HuggingFaceEmbeddings(model_name='sentence-transformers/multi-qa-MiniLM-L6-cos-v1'),
-                          allow_dangerous_deserialization=True
-)
 
+
+
+#embeddings
+embeddings =HuggingFaceEmbeddings(model_name='sentence-transformers/multi-qa-MiniLM-L6-cos-v1')
+
+
+#bdv
+db = FAISS.load_local(
+    "behanzin_bdv", embeddings, allow_dangerous_deserialization=True)
 
 
 # Connect query to FAISS index using a retriever
 retriever = db.as_retriever(
     search_type="similarity",
-    search_kwargs={'k': 45},
+    search_kwargs={'k':20},
 )
 
 
+
 # Define LLM
-print('Intro mistral')
-model = ChatMistralAI( model ="mistral-large-latest",
-                      temperature =0.2,
-                      maxRetries =3,
-                      mistral_api_key=api_key
-                      )
-print('Finish mistral')
+model = ChatMistralAI(
+    model_name="mistral-large-latest",
+    temperature=0.5,
+    mistral_api_key=mistral_api_key
+)
 
 
 template = """
@@ -84,20 +78,17 @@ combine_docs_chain = create_stuff_documents_chain(model, prompt)
 retrieval_chain = create_retrieval_chain(retriever, combine_docs_chain)
 
 
+
+
 #Let's write a function to retrieve with llm
-print('ASK')
+
 def ask(question: str):
   response = retrieval_chain.invoke({"input": question})
   if response:
-    print('Response')
     return response['answer']
-    print('Yo response')
   else:
     return "Veuillez poser une autre question."
-  print('All is Ok!')
-  
 
 
 
-#print(ask("salut"))
-
+#print(ask("qui es tu"))
